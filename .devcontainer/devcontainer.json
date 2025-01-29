@@ -1,22 +1,72 @@
 {
-  "name": "csharp-node-dev",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "remoteUser": "vscode",
-  "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  "forwardAgent": true, // Uses host SSH keys
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=volume", // Isolated volume
-  "workspaceFolder": "/workspace",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-dotnettools.csharp",
-        "dbaeumer.vscode-eslint"
-      ]
-    }
-  },
-  "postCreateCommand": "git config --global user.name 'Your Name' && git config --global user.email 'your.email@example.com'"
+    "name": "Ubuntu Node.js Development",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "VARIANT": "ubuntu-22.04",
+            "NODE_VERSION": "20",
+            "USERNAME": "devuser",
+            "USER_UID": "1000",
+            "USER_GID": "1000",
+            "GIT_EMAIL": "${localEnv:GIT_EMAIL}",
+            "GIT_NAME": "${localEnv:GIT_NAME}"
+        }
+    },
+    "remoteUser": "devuser",
+    
+    // Configure tool-specific properties
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash"
+                    }
+                }
+            },
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "GitHub.copilot",
+                "ms-azuretools.vscode-docker",
+                "GitLens.gitlens"
+            ]
+        }
+    },
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally
+    "forwardPorts": [],
+
+    // Mount your .gitconfig and SSH keys from the host
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/devuser/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/devuser/.gitconfig,type=bind,consistency=cached"
+    ],
+
+    // Environment variables
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/home/devuser/.local/bin"
+    },
+
+    // Life cycle scripts
+    "postCreateCommand": "npm install",
+    "postStartCommand": "git config --global core.editor 'code --wait'",
+
+    // Features to add to the dev container
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20"
+        }
+    },
+
+    // Security options
+    "securityOpt": ["seccomp=unconfined"],
+    "capAdd": ["SYS_PTRACE"],
+
+    // Workspace configuration
+    "workspaceFolder": "/home/devuser/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/devuser/workspace,type=bind,consistency=cached"
 }
