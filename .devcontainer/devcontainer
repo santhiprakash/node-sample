@@ -1,0 +1,22 @@
+{
+  "name": "csharp-node-dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardAgent": true, // Uses host SSH keys
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=volume", // Isolated volume
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "postCreateCommand": "git config --global user.name 'Your Name' && git config --global user.email 'your.email@example.com'"
+}
